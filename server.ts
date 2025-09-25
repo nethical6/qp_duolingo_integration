@@ -17,7 +17,7 @@ app.post("/generate-quest", async (ctx) => {
       instructions: "Complete your daily Duolingo lesson",
       reward: 5,
       quest_json: {
-        webviewUrl: "http://localhost:8000/profile.html",
+        webviewUrl: "http://localhost:8069/profile.html",
         username: body.username
       },
       selected_days: body.days,
