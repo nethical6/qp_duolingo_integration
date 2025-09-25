@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duolingo Profile Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #58cc02, #89e219);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #58cc02, #89e219, #58cc02);
+        }
+        
+        .username {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2b2b2b;
+            margin-bottom: 6px;
+        }
+        
+        .join-date {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .last-updated {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        .streak-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .streak-status.safe {
+            background: #e7f8e1;
+            color: #58cc02;
+        }
+
+        .streak-status.warning {
+            background: #fff4e5;
+            color: #ff9600;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            background: #f8fdf4;
+            padding: 14px;
+            border-radius: 12px;
+            border: 1px solid #e8f4e0;
+        }
+        
+        .stat-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #58cc02;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 11px;
+            color: #777;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        
+        .languages-section {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .languages-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #2b2b2b;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        
+        .languages-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .language-badge {
+            background: linear-gradient(135deg, #58cc02, #89e219);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .language-flag {
+            font-size: 14px;
+        }
+        
+        .streak-highlight {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .streak-highlight::before {
+            content: '🔥';
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            font-size: 18px;
+        }
+        
+        .quest-button {
+            width: 100%;
+            background: linear-gradient(135deg, #58cc02, #89e219);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(88, 204, 2, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .quest-button:hover {username
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(88, 204, 2, 0.4);
+        }
+        
+        .quest-button:active {
+            transform: translateY(0);
+        }
+
+        .loading {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #58cc02;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .theme-transition {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+        </div>
+        <div class="username">DuoMaster2024</div>
+        <div class="join-date">Joined September 2023</div>
+        <div class="last-updated"></div>
+        
+        <div class="stats-grid">
+            <div class="stat-item streak-highlight">
+                <span class="stat-number">127</span>
+                <span class="stat-label">Day Streak</span>
+                <div class="streak-status"></div>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">8,432</span>
+                <span class="stat-label">Total XP</span>
+            </div>
+        </div>
+        
+        <div class="languages-section">
+            <div class="languages-title">Learning</div>
+            <div class="languages-list">
+                <div class="language-badge">
+                    <span class="language-flag">🇪🇸</span>
+                    Spanish
+                </div>
+                <div class="language-badge">
+                    <span class="language-flag">🇫🇷</span>
+                    French
+                </div>
+                <div class="language-badge">
+                    <span class="language-flag">🇩🇪</span>
+                    German
+                </div>
+            </div>
+        </div>
+        
+        <button class="quest-button" onclick="">
+            Check if Quest Completed
+        </button>
+    </div>
+</body>
+<script>
+function applyTheme(theme) {
+    const root = document.documentElement;
+    const card = document.querySelector('.profile-card');
+    const elements = document.querySelectorAll('.theme-transition');
+    
+    // Add transition class to elements that should animate
+    [card, ...elements].forEach(el => {
+        if (el) el.classList.add('theme-transition');
+    });
+
+    // Set CSS variables for theme colors
+    root.style.setProperty('--color-primary', theme.primary || '#00FF9F');
+    root.style.setProperty('--color-on-primary', theme.onPrimary || '#000000');
+    root.style.setProperty('--color-secondary', theme.secondary || '#00BFFF');
+    root.style.setProperty('--color-on-secondary', theme.onSecondary || '#000000');
+    root.style.setProperty('--color-tertiary', theme.tertiary || '#8A2BE2');
+    root.style.setProperty('--color-on-tertiary', theme.onTertiary || '#FFFFFF');
+    root.style.setProperty('--color-background', theme.background || '#0A0A0A');
+    root.style.setProperty('--color-on-background', theme.onBackground || '#00FF9F');
+    root.style.setProperty('--color-surface', theme.surface || '#111111');
+    root.style.setProperty('--color-on-surface', theme.onSurface || '#B0FFDA');
+    root.style.setProperty('--color-error', theme.error || '#FF0040');
+    root.style.setProperty('--color-on-error', theme.onError || '#000000');
+
+    // Apply theme colors to elements
+    document.body.style.background = `var(--color-background)`;
+    document.body.style.color = `var(--color-on-background)`;
+    
+    // Card styling
+    card.style.background = `var(--color-surface)`;
+    card.style.color = `var(--color-on-surface)`;
+    card.style.boxShadow = `0 16px 40px rgba(0, 255, 159, 0.1)`;
+
+    // Username and section titles
+    document.querySelectorAll('.username, .languages-title').forEach(el => {
+        el.style.color = `var(--color-on-surface)`;
+    });
+
+    // Stats styling
+    document.querySelectorAll('.stat-item').forEach(el => {
+        el.style.background = `var(--color-surface)`;
+        el.style.borderColor = `var(--color-primary)`;
+    });
+
+    // Stat numbers
+    document.querySelectorAll('.stat-number').forEach(el => {
+        el.style.color = `var(--color-primary)`;
+    });
+
+    // Language badges and button
+    document.querySelectorAll('.language-badge, .quest-button').forEach(el => {
+        el.style.background = `var(--color-primary)`;
+        el.style.color = `var(--color-on-primary)`;
+    });
+
+    // Loading spinner
+    document.querySelector('.loading-spinner').style.borderTopColor = `var(--color-primary)`;
+
+    // Remove transition class after animation
+    setTimeout(() => {
+        [card, ...elements].forEach(el => {
+            if (el) el.classList.remove('theme-transition');
+        });
+    }, 300);
+}
+
+async function loadDuolingoProfile(username) {
+    // Show loading state first
+    const loadingEl = document.querySelector('.loading');
+    if (loadingEl) {
+        loadingEl.style.display = 'flex';
+    }
+
+    // Always fetch fresh data when called from button
+    const isFreshCheck = document.activeElement?.classList.contains('quest-button');
+    const cacheKey = `duolingo_user_${username}`;
+    const cached = localStorage.getItem(cacheKey);
+
+    if (!isFreshCheck && cached) {
+        const cachedData = JSON.parse(cached);
+        const age = Date.now() - cachedData.timestamp;
+        if (age < 1000 * 60 * 60) { // 1 hour cache
+            renderProfile(cachedData.user);
+            return;
+        }
+    }
+
+    try {
+        // Async call to Android interface
+        WebAppInterface.fetchDataWithoutCorsAsync(
+            `https://www.duolingo.com/2017-06-30/users?username=${encodeURIComponent(username)}`,
+            '{"Accept": "application/json"}',
+            "handleDuolingoResponse"
+        );
+    } catch (err) {
+        console.error(err);
+        alert("Failed to load Duolingo profile. Check the username.");
+        // Hide loading state on error
+        if (loadingEl) loadingEl.style.display = 'none';
+    }
+}
+
+// This function will be called by Android once the data is ready
+function handleDuolingoResponse(responseText) {
+    try {
+        const data = JSON.parse(responseText);
+        if (!data.users || data.users.length === 0) throw new Error("User not found");
+
+        const user = data.users[0];
+        
+        // Update last check timestamp
+        const lastCheck = new Date().toISOString();
+        localStorage.setItem(`last_check_${user.username}`, lastCheck);
+        
+        const currentStreak = user.streak || user.streakData?.currentStreak?.length || 0;
+        const wasButtonClicked = document.activeElement?.classList.contains('quest-button');
+        
+        // Get quest completion status for today
+        const today = new Date().toDateString();
+        const questStatusKey = `quest_status_${user.username}_${today}`;
+        const questCompleted = localStorage.getItem(questStatusKey) === 'completed';
+        
+        // Get previous streak info
+        const streakKey = `streak_info_${user.username}`;
+        let prevStreakInfo = JSON.parse(localStorage.getItem(streakKey) || '{}');
+        
+        // If no previous data exists, initialize it
+        if (!prevStreakInfo.streak) {
+            prevStreakInfo = {
+                streak: currentStreak,
+                lastUpdate: new Date().toISOString(),
+                username: user.username
+            };
+            localStorage.setItem(streakKey, JSON.stringify(prevStreakInfo));
+        }
+
+        const previousStreak = prevStreakInfo.streak;
+        const isFirstStreak = previousStreak === 0 && currentStreak === 1;
+        const isStreakIncreased = previousStreak > 0 && currentStreak > previousStreak;
+        
+        if (wasButtonClicked) {
+            if (!questCompleted && (isFirstStreak || isStreakIncreased)) {
+                // Quest was completed for the first time today
+                try {
+                    WebAppInterface.onQuestCompleted();
+                    WebAppInterface.toast("Quest completed! 🎉");
+                    // Mark quest as completed for today
+                    localStorage.setItem(questStatusKey, 'completed');
+                    
+                    // Update streak info only when quest is completed
+                    const streakInfo = {
+                        streak: currentStreak,
+                        lastUpdate: new Date().toISOString(),
+                        username: user.username
+                    };
+                    localStorage.setItem(streakKey, JSON.stringify(streakInfo));
+                } catch (e) {
+                    console.log('Quest completion notification failed:', e);
+                }
+            } else if (questCompleted) {
+                try {
+                    WebAppInterface.toast("You've already completed today's quest! 🌟");
+                } catch (e) {
+                    console.log('Toast notification failed:', e);
+                }
+            } else {
+                try {
+                    WebAppInterface.toast("Complete your daily goal to finish the quest! 🎯");
+                } catch (e) {
+                    console.log('Toast notification failed:', e);
+                }
+            }
+        }
+
+        // Cache profile data
+        const cacheKey = `duolingo_user_${user.username}`;
+        localStorage.setItem(cacheKey, JSON.stringify({ 
+            user, 
+            timestamp: Date.now() 
+        }));
+
+        renderProfile(user);
+    } catch (err) {
+        console.error(err);
+        alert("Failed to load Duolingo profile. Check the username.");
+        // Hide loading state on error
+        const loadingEl = document.querySelector('.loading');
+        if (loadingEl) loadingEl.style.display = 'none';
+    }
+}
+
+function renderProfile(user) {
+    const avatarEl = document.querySelector('.avatar');
+    const usernameEl = document.querySelector('.username');
+    const joinDateEl = document.querySelector('.join-date');
+    const streakEl = document.querySelector('.stats-grid .streak-highlight .stat-number');
+    const xpEl = document.querySelectorAll('.stat-item')[1].querySelector('.stat-number');
+    const languagesListEl = document.querySelector('.languages-list');
+    const lastUpdatedEl = document.querySelector('.last-updated');
+    const streakStatusEl = document.querySelector('.streak-status');
+
+    // Update last updated text
+    const lastCheck = localStorage.getItem(`last_check_${user.username}`);
+    if (lastCheck) {
+        const lastUpdateDate = new Date(lastCheck);
+        lastUpdatedEl.textContent = `Last updated: ${lastUpdateDate.toLocaleString()}`;
+    }
+
+    // Check streak status
+    const streakInfo = JSON.parse(localStorage.getItem(`streak_info_${user.username}`) || '{}');
+    const lastUpdate = streakInfo.lastUpdate ? new Date(streakInfo.lastUpdate) : null;
+    const now = new Date();
+    
+    if (lastUpdate) {
+        const hoursSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60);
+        if (hoursSinceUpdate > 24) {
+            streakStatusEl.textContent = "⚠️ Check in today to maintain your streak!";
+            streakStatusEl.className = "streak-status warning";
+        } else {
+            streakStatusEl.textContent = "✅ Streak is safe for today";
+            streakStatusEl.className = "streak-status safe";
+        }
+    }
+
+    usernameEl.textContent = user.username;
+    const joinDate = new Date(user.creationDate * 1000);
+    joinDateEl.textContent = `Joined ${joinDate.toLocaleString('default', { month: 'long', year: 'numeric' })}`;
+
+    streakEl.textContent = user.streakData?.currentStreak.length || user.streak || 0;
+    xpEl.textContent = user.totalXp || 0;
+
+    languagesListEl.innerHTML = '';
+    (user.courses || []).forEach(course => {
+        const langDiv = document.createElement('div');
+        langDiv.className = 'language-badge';
+        langDiv.innerHTML = `<span class="language-flag">${getFlag(course.learningLanguage)}</span>${course.title}`;
+        languagesListEl.appendChild(langDiv);
+    });
+
+    document.querySelector('.profile-card').style.display = 'block';
+    
+    // Hide loading state
+    const loadingEl = document.querySelector('.loading');
+    if (loadingEl) loadingEl.style.display = 'none';
+}
+
+function getFlag(langCode) {
+    const flags = {
+        'es': '🇪🇸',
+        'fr': '🇫🇷',
+        'de': '🇩🇪',
+        'ja': '🇯🇵',
+        'ru': '🇷🇺',
+        'la': '🏛️'
+    };
+    return flags[langCode] || '🏳️';
+}
+
+// Function to inject username data
+function injectData(data) {
+    try {
+        // Destructure only username and ignore other keys
+        const { username, ..._ } = JSON.parse(data);
+        if (!username) throw new Error('Username is required');
+        loadDuolingoProfile(username);
+
+        // Update button click handler to use the injected username
+        const questButton = document.querySelector('.quest-button');
+        if (questButton) {
+            questButton.disabled = false; // Enable button
+            questButton.addEventListener('click', () => {
+                loadDuolingoProfile(username);
+            });
+        }
+    } catch (err) {
+        console.error('Failed to inject data:', err);
+        WebAppInterface.toast("Failed to load profile data");
+    }
+}
+
+// Modified initialization to wait for data injection
+window.onload = function() {
+    // Initialize UI but don't load profile yet
+    const questButton = document.querySelector('.quest-button');
+    if (questButton) {
+        questButton.disabled = true; // Disable button until data is injected
+    }
+};
+
+</script>
+
+</html>
