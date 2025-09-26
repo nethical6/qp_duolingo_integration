@@ -1,10 +1,20 @@
-import { Bao } from "baojs";
+import { Bao, Context } from "baojs";
 import { readFileSync } from "fs";
 import type { QuestRequest, CreateQuestPayload, QuestResponse } from "./types";
 import { env } from "process";
 
 const app = new Bao();
+app.before(async (ctx: Context):Promise<Context> => {
+  ctx.res?.headers.set("Access-Control-Allow-Origin", "https://nethical6.github.io");
+  ctx.res?.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  ctx.res?.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
+  if (ctx.req.method === "OPTIONS") {
+    return ctx.sendRaw(new Response(null, { status: 204 }));
+  }
+
+  return ctx;
+});
 // API endpoint for quest generation
 app.post("/generate-quest", async (ctx) => {
   const body = await ctx.req.json() as QuestRequest;
@@ -63,3 +73,28 @@ app.post("/generate-quest", async (ctx) => {
 
 console.log("Server running at http://localhost:3000");
 app.listen({ port: 3000 });
+
+export default {
+  port: 8080,
+  fetch(req: Request): Response {
+    // CORS headers
+    const headers = {
+      "Access-Control-Allow-Origin": "https://nethical6.github.io",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    };
+
+    // Handle preflight OPTIONS
+    if (req.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers });
+    }
+
+    return new Response(JSON.stringify({ message: "Hello from Bun!" }), {
+      status: 200,
+      headers: {
+        ...headers,
+        "Content-Type": "application/json",
+      },
+    });
+  },
+};
