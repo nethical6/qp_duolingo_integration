@@ -260,17 +260,15 @@
     </div>
 </body>
 <script>
-function applyTheme(theme) {
+    function applyTheme(theme) {
     const root = document.documentElement;
     const card = document.querySelector('.profile-card');
     const elements = document.querySelectorAll('.theme-transition');
     
-    // Add transition class to elements that should animate
     [card, ...elements].forEach(el => {
         if (el) el.classList.add('theme-transition');
     });
 
-    // Set CSS variables for theme colors
     root.style.setProperty('--color-primary', theme.primary || '#00FF9F');
     root.style.setProperty('--color-on-primary', theme.onPrimary || '#000000');
     root.style.setProperty('--color-secondary', theme.secondary || '#00BFFF');
@@ -284,41 +282,33 @@ function applyTheme(theme) {
     root.style.setProperty('--color-error', theme.error || '#FF0040');
     root.style.setProperty('--color-on-error', theme.onError || '#000000');
 
-    // Apply theme colors to elements
     document.body.style.background = `var(--color-background)`;
     document.body.style.color = `var(--color-on-background)`;
     
-    // Card styling
     card.style.background = `var(--color-surface)`;
     card.style.color = `var(--color-on-surface)`;
     card.style.boxShadow = `0 16px 40px rgba(0, 255, 159, 0.1)`;
 
-    // Username and section titles
     document.querySelectorAll('.username, .languages-title').forEach(el => {
         el.style.color = `var(--color-on-surface)`;
     });
 
-    // Stats styling
     document.querySelectorAll('.stat-item').forEach(el => {
         el.style.background = `var(--color-surface)`;
         el.style.borderColor = `var(--color-primary)`;
     });
 
-    // Stat numbers
     document.querySelectorAll('.stat-number').forEach(el => {
         el.style.color = `var(--color-primary)`;
     });
 
-    // Language badges and button
     document.querySelectorAll('.language-badge, .quest-button').forEach(el => {
         el.style.background = `var(--color-primary)`;
         el.style.color = `var(--color-on-primary)`;
     });
 
-    // Loading spinner
     document.querySelector('.loading-spinner').style.borderTopColor = `var(--color-primary)`;
 
-    // Remove transition class after animation
     setTimeout(() => {
         [card, ...elements].forEach(el => {
             if (el) el.classList.remove('theme-transition');
@@ -327,28 +317,25 @@ function applyTheme(theme) {
 }
 
 async function loadDuolingoProfile(username) {
-    // Show loading state first
     const loadingEl = document.querySelector('.loading');
     if (loadingEl) {
         loadingEl.style.display = 'flex';
     }
 
-    // Always fetch fresh data when called from button
     const isFreshCheck = document.activeElement?.classList.contains('quest-button');
-    const cacheKey = `duolingo_user_${username}`;
+    const cacheKey = `duolingo_user_${username}_cache`;
     const cached = localStorage.getItem(cacheKey);
 
     if (!isFreshCheck && cached) {
         const cachedData = JSON.parse(cached);
         const age = Date.now() - cachedData.timestamp;
-        if (age < 1000 * 60 * 60) { // 1 hour cache
+        if (age < 1000 * 60 * 60) {
             renderProfile(cachedData.user);
             return;
         }
     }
 
     try {
-        // Async call to Android interface
         WebAppInterface.fetchDataWithoutCorsAsync(
             `https://www.duolingo.com/2017-06-30/users?username=${encodeURIComponent(username)}`,
             '{"Accept": "application/json"}',
@@ -357,85 +344,102 @@ async function loadDuolingoProfile(username) {
     } catch (err) {
         console.error(err);
         alert("Failed to load Duolingo profile. Check the username.");
-        // Hide loading state on error
         if (loadingEl) loadingEl.style.display = 'none';
     }
 }
 
-// This function will be called by Android once the data is ready
 function handleDuolingoResponse(responseText) {
     try {
         const data = JSON.parse(responseText);
         if (!data.users || data.users.length === 0) throw new Error("User not found");
 
         const user = data.users[0];
-        
-        // Update last check timestamp
-        const lastCheck = new Date().toISOString();
-        localStorage.setItem(`last_check_${user.username}`, lastCheck);
-        
-        const currentStreak = user.streak || user.streakData?.currentStreak?.length || 0;
         const wasButtonClicked = document.activeElement?.classList.contains('quest-button');
         
-        // Get quest completion status for today
+        // Get current streak from API (prioritize currentStreak, fallback to previousStreak length)
+        const apiCurrentStreak = user.streakData?.currentStreak?.length || 
+                                 user.streakData?.length || 
+                                 user.streak || 0;
+        
+        const apiPreviousStreak = user.streakData?.previousStreak?.length || 0;
+        
+        // Get our stored data
+        const storageKey = `streak_tracker_${user.username}`;
+        let storedData = JSON.parse(localStorage.getItem(storageKey) || 'null');
+        
         const today = new Date().toDateString();
-        const questStatusKey = `quest_status_${user.username}_${today}`;
-        const questCompleted = localStorage.getItem(questStatusKey) === 'completed';
+        const now = new Date().toISOString();
         
-        // Get previous streak info
-        const streakKey = `streak_info_${user.username}`;
-        let prevStreakInfo = JSON.parse(localStorage.getItem(streakKey) || '{}');
-        
-        // If no previous data exists, initialize it
-        if (!prevStreakInfo.streak) {
-            prevStreakInfo = {
-                streak: currentStreak,
-                lastUpdate: new Date().toISOString(),
-                username: user.username
+        // First time setup
+        if (!storedData) {
+            // Check if user already completed today's quest before first check
+            const hasCompletedToday = apiCurrentStreak > apiPreviousStreak;
+            
+            storedData = {
+                lastKnownStreak: apiCurrentStreak,
+                lastCheckDate: today,
+                lastCheckTime: now,
+                completedDates: hasCompletedToday ? [today] : []
             };
-            localStorage.setItem(streakKey, JSON.stringify(prevStreakInfo));
+            localStorage.setItem(storageKey, JSON.stringify(storedData));
+            
+            if (wasButtonClicked) {
+                if (hasCompletedToday) {
+                    WebAppInterface.toast("Quest already completed today! 🌟");
+                } else {
+                    WebAppInterface.toast("Perform a lesson to complete quest! 🎯");
+                }
+            }
+            
+            renderProfile(user);
+            return;
         }
-
-        const previousStreak = prevStreakInfo.streak;
-        const isFirstStreak = previousStreak === 0 && currentStreak === 1;
-        const isStreakIncreased = previousStreak > 0 && currentStreak > previousStreak;
+        
+        // Check if this is a new day
+        const isNewDay = storedData.lastCheckDate !== today;
+        
+        if (isNewDay) {
+            // New day: reset stored streak to current API streak
+            storedData.lastKnownStreak = apiCurrentStreak;
+            storedData.lastCheckDate = today;
+            storedData.lastCheckTime = now;
+            // Keep completed dates for history but we'll only check today
+        }
+        
+        // Determine if quest is completed today
+        const questCompletedToday = storedData.completedDates.includes(today);
+        const streakIncreased = apiCurrentStreak > storedData.lastKnownStreak;
         
         if (wasButtonClicked) {
-            if (!questCompleted && (isFirstStreak || isStreakIncreased)) {
-                // Quest was completed for the first time today
+            if (questCompletedToday) {
+                // Already got reward today
+                WebAppInterface.toast("You've already completed today's quest! 🌟");
+            } else if (streakIncreased) {
+                // Streak increased since last check - give reward!
                 try {
                     WebAppInterface.onQuestCompleted();
-                    WebAppInterface.toast("Quest completed! 🎉");
-                    // Mark quest as completed for today
-                    localStorage.setItem(questStatusKey, 'completed');
+                    WebAppInterface.toast(`Quest completed! Streak: ${apiCurrentStreak} days 🎉`);
                     
-                    // Update streak info only when quest is completed
-                    const streakInfo = {
-                        streak: currentStreak,
-                        lastUpdate: new Date().toISOString(),
-                        username: user.username
-                    };
-                    localStorage.setItem(streakKey, JSON.stringify(streakInfo));
+                    // Mark as completed
+                    storedData.completedDates.push(today);
+                    storedData.lastKnownStreak = apiCurrentStreak;
+                    storedData.lastCheckTime = now;
+                    localStorage.setItem(storageKey, JSON.stringify(storedData));
                 } catch (e) {
                     console.log('Quest completion notification failed:', e);
                 }
-            } else if (questCompleted) {
-                try {
-                    WebAppInterface.toast("You've already completed today's quest! 🌟");
-                } catch (e) {
-                    console.log('Toast notification failed:', e);
-                }
             } else {
-                try {
-                    WebAppInterface.toast("Complete your daily goal to finish the quest! 🎯");
-                } catch (e) {
-                    console.log('Toast notification failed:', e);
-                }
+                // Streak hasn't increased yet
+                WebAppInterface.toast("Perform a lesson today to complete quest 🎯");
             }
+        } else {
+            // Auto check - just update timestamp
+            storedData.lastCheckTime = now;
+            localStorage.setItem(storageKey, JSON.stringify(storedData));
         }
 
         // Cache profile data
-        const cacheKey = `duolingo_user_${user.username}`;
+        const cacheKey = `duolingo_user_${user.username}_cache`;
         localStorage.setItem(cacheKey, JSON.stringify({ 
             user, 
             timestamp: Date.now() 
@@ -445,7 +449,6 @@ function handleDuolingoResponse(responseText) {
     } catch (err) {
         console.error(err);
         alert("Failed to load Duolingo profile. Check the username.");
-        // Hide loading state on error
         const loadingEl = document.querySelector('.loading');
         if (loadingEl) loadingEl.style.display = 'none';
     }
@@ -461,26 +464,28 @@ function renderProfile(user) {
     const lastUpdatedEl = document.querySelector('.last-updated');
     const streakStatusEl = document.querySelector('.streak-status');
 
-    // Update last updated text
-    const lastCheck = localStorage.getItem(`last_check_${user.username}`);
-    if (lastCheck) {
-        const lastUpdateDate = new Date(lastCheck);
-        lastUpdatedEl.textContent = `Last updated: ${lastUpdateDate.toLocaleString()}`;
-    }
-
-    // Check streak status
-    const streakInfo = JSON.parse(localStorage.getItem(`streak_info_${user.username}`) || '{}');
-    const lastUpdate = streakInfo.lastUpdate ? new Date(streakInfo.lastUpdate) : null;
-    const now = new Date();
+    // Get stored data for display
+    const storageKey = `streak_tracker_${user.username}`;
+    const storedData = JSON.parse(localStorage.getItem(storageKey) || 'null');
     
-    if (lastUpdate) {
-        const hoursSinceUpdate = (now - lastUpdate) / (1000 * 60 * 60);
-        if (hoursSinceUpdate > 24) {
+    if (storedData && storedData.lastCheckTime) {
+        const lastCheck = new Date(storedData.lastCheckTime);
+        lastUpdatedEl.textContent = `Last updated: ${lastCheck.toLocaleString()}`;
+        
+        // Check streak status
+        const hoursSinceCheck = (Date.now() - lastCheck.getTime()) / (1000 * 60 * 60);
+        const today = new Date().toDateString();
+        const completedToday = storedData.completedDates.includes(today);
+        
+        if (completedToday) {
+            streakStatusEl.textContent = "✅ Quest completed today!";
+            streakStatusEl.className = "streak-status safe";
+        } else if (hoursSinceCheck > 20) {
             streakStatusEl.textContent = "⚠️ Check in today to maintain your streak!";
             streakStatusEl.className = "streak-status warning";
         } else {
-            streakStatusEl.textContent = "✅ Streak is safe for today";
-            streakStatusEl.className = "streak-status safe";
+            streakStatusEl.textContent = "⏰ Complete a lesson today!";
+            streakStatusEl.className = "streak-status pending";
         }
     }
 
@@ -488,7 +493,10 @@ function renderProfile(user) {
     const joinDate = new Date(user.creationDate * 1000);
     joinDateEl.textContent = `Joined ${joinDate.toLocaleString('default', { month: 'long', year: 'numeric' })}`;
 
-    streakEl.textContent = user.streakData?.currentStreak.length || user.streak || 0;
+    const currentStreak = user.streakData?.currentStreak?.length || 
+                          user.streakData?.length || 
+                          user.streak || 0;
+    streakEl.textContent = currentStreak;
     xpEl.textContent = user.totalXp || 0;
 
     languagesListEl.innerHTML = '';
@@ -501,7 +509,6 @@ function renderProfile(user) {
 
     document.querySelector('.profile-card').style.display = 'block';
     
-    // Hide loading state
     const loadingEl = document.querySelector('.loading');
     if (loadingEl) loadingEl.style.display = 'none';
 }
@@ -518,20 +525,15 @@ function getFlag(langCode) {
     return flags[langCode] || '🏳️';
 }
 
-// Function to inject username data
 function injectData(data) {
     try {
         let parsed;
 
-        // Case 1: If already an object
         if (typeof data === "object") {
             parsed = data;
         } 
-        // Case 2: If string, try parsing
         else if (typeof data === "string") {
             parsed = JSON.parse(data);
-
-            // Sometimes Android passes double-encoded JSON
             if (typeof parsed === "string") {
                 parsed = JSON.parse(parsed);
             }
@@ -556,12 +558,10 @@ function injectData(data) {
     }
 }
 
-// Modified initialization to wait for data injection
 window.onload = function() {
-    // Initialize UI but don't load profile yet
     const questButton = document.querySelector('.quest-button');
     if (questButton) {
-        questButton.disabled = true; // Disable button until data is injected
+        questButton.disabled = true;
     }
 };
 
