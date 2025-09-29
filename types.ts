@@ -7,6 +7,13 @@ export interface QuestRequest {
   startTime: string;
   endTime: string;
 }
+export interface QuestRequest {
+  token: string;
+  username: string;
+  days: string[];
+  startTime: string;
+  endTime: string;
+}
 
 export interface CreateQuestPayload {
   apiKey: string;
@@ -14,10 +21,14 @@ export interface CreateQuestPayload {
   title: string;
   instructions: string;
   reward: number;
-  quest_json: string;
-  selected_days: string;
-  time_range: string;
+  quest_json: {
+    webviewUrl: string;
+    username: string;
+  };
+  selected_days: string[];
+  time_range: number[];
 }
+
 
 export interface QuestResponse {
   success: boolean;

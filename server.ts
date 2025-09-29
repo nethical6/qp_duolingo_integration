@@ -22,12 +22,12 @@ app.post("/generate-quest", async (ctx) => {
       title: "Duolingo Quest",
       instructions: "Complete your daily Duolingo lesson",
       reward: 5,
-      quest_json: JSON.stringify({  // ← Stringify this!
+      quest_json: ({  // ← Stringify this!
         webviewUrl: "https://nethical6.github.io/qp_duolingo_integration/profile",
         username: body.username
       }),
-      selected_days: JSON.stringify(body.days),  // ← Stringify this!
-      time_range: JSON.stringify([  // ← Stringify this!
+      selected_days: body.days,  // ← Stringify this!
+      time_range: ([  // ← Stringify this!
         parseInt(body.startTime.split(":")[0]),
         parseInt(body.endTime.split(":")[0])
       ])
