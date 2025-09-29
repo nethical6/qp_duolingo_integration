@@ -521,22 +521,38 @@ function getFlag(langCode) {
 // Function to inject username data
 function injectData(data) {
     try {
-        // Destructure only username and ignore other keys
-        const { username, ..._ } = JSON.parse(data);
-        if (!username) throw new Error('Username is required');
+        let parsed;
+
+        // Case 1: If already an object
+        if (typeof data === "object") {
+            parsed = data;
+        } 
+        // Case 2: If string, try parsing
+        else if (typeof data === "string") {
+            parsed = JSON.parse(data);
+
+            // Sometimes Android passes double-encoded JSON
+            if (typeof parsed === "string") {
+                parsed = JSON.parse(parsed);
+            }
+        } else {
+            throw new Error("Invalid data format");
+        }
+
+        const { username } = parsed;
+        if (!username) throw new Error("Username is required");
+
         loadDuolingoProfile(username);
 
-        // Update button click handler to use the injected username
-        const questButton = document.querySelector('.quest-button');
+        const questButton = document.querySelector(".quest-button");
         if (questButton) {
-            questButton.disabled = false; // Enable button
-            questButton.addEventListener('click', () => {
-                loadDuolingoProfile(username);
-            });
+            questButton.disabled = false;
+            questButton.addEventListener("click", () => loadDuolingoProfile(username));
         }
+
     } catch (err) {
-        console.error('Failed to inject data:', err);
-        WebAppInterface.toast("Failed to load profile data");
+        console.error("Inject data error:", err);
+        WebAppInterface.toast("Failed to load profile: " + err.message);
     }
 }
 
