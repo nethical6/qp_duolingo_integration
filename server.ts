@@ -34,7 +34,7 @@ app.post("/generate-quest", async (ctx) => {
     };
 
     console.log("Sending request to questphone API with payload: " + JSON.stringify(questPayload));
-    const response = await fetch("http://localhost:8000/api/create-quest", {
+    const response = await fetch("https://questphone.app/api/create-quest", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
