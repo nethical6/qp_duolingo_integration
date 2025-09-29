@@ -449,20 +449,22 @@
             generateBtn.style.background = '#ffa500';
             
             try {
+                const body = JSON.stringify({ 
+                    username,
+                    token,
+                    days: Array.from(selectedDays),
+                    startTime,
+                    endTime
+                });
                 const response = await fetch('https://questphone.app/extensions/duolingo/generate-quest', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        username,
-                        token,
-                        days: Array.from(selectedDays),
-                        startTime,
-                        endTime
-                    })
+                    body: body
                 });
 
+                console.log("Response status:", body);
                 const data = await response.json();
                 
                 if (data.success) {
@@ -489,7 +491,7 @@
                 generateBtn.style.background = '#ff4444';
                 
                 setTimeout(() => {
-                    generateBtn.innerHTML = '🚀 Generate Quest';
+                    gedatanerateBtn.innerHTML = '🚀 Generate Quest';
                     generateBtn.style.background = 'linear-gradient(135deg, #58cc02, #89e219)';
                 }, 2000);
             }

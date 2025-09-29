@@ -1,8 +1,8 @@
 /// <reference lib="dom" />
 
 export interface QuestRequest {
-  token: string;
   username: string;
+  token: string;
   days: string[];
   startTime: string;
   endTime: string;
@@ -14,12 +14,9 @@ export interface CreateQuestPayload {
   title: string;
   instructions: string;
   reward: number;
-  quest_json: {
-    webviewUrl: string;
-    username: string;
-  };
-  selected_days: string[];
-  time_range: number[];
+  quest_json: string;
+  selected_days: string;
+  time_range: string;
 }
 
 export interface QuestResponse {
