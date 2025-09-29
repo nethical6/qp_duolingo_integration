@@ -22,6 +22,5 @@ export interface CreateQuestPayload {
 export interface QuestResponse {
   success: boolean;
   data?: Record<string, unknown>;
-  error?: string;
   message: string;
 }

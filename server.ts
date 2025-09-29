@@ -34,7 +34,7 @@ app.post("/generate-quest", async (ctx) => {
     };
 
     console.log("Sending request to questphone API with payload: " + JSON.stringify(questPayload));
-    const response = await fetch("https://questphone.app/api/create-quest", {
+    const response = await fetch("http://localhost:8000/api/create-quest", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -52,11 +52,11 @@ app.post("/generate-quest", async (ctx) => {
     const responseData = responseRaw as Record<string, unknown>;
     
     if (responseData.hasOwnProperty("error")) {
-      return ctx.sendJson({
-        success: false,
-        error: responseData.error as string || "Unknown error from questphone API",
-        message: "Failed to generate quest"
-      });
+      const failresp: QuestResponse = {
+      success: false,
+      message: responseData.error as string || "Unknown error from questphone API",
+      };
+      return ctx.sendJson(failresp);
     }
 
     console.log("Quest generated successfully: " + JSON.stringify(responseData));
@@ -81,4 +81,4 @@ app.post("/generate-quest", async (ctx) => {
   }
 });
 
-app.listen({ port: 3000 });
+app.listen({ port: 2000 });
