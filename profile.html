@@ -383,6 +383,10 @@ function handleDuolingoResponse(responseText) {
             };
             localStorage.setItem(storageKey, JSON.stringify(storedData));
             
+            if(hasCompletedToday){
+                    WebAppInterface.toast("Quest already completed today! 🌟");
+                    WebAppInterface.onQuestCompleted();
+            }
             if (wasButtonClicked) {
                 if (hasCompletedToday) {
                     WebAppInterface.toast("Quest already completed today! 🌟");
