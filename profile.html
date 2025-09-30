@@ -362,7 +362,15 @@ function handleDuolingoResponse(responseText) {
                                  user.streak || 0;
         
         const apiPreviousStreak = user.streakData?.previousStreak?.length || 0;
-        
+
+        const apiCurrentStreakDate = user.streakData?.currentStreak?.endDate || null;
+        // Check if current streak date is today (YYYY-MM-DD)
+        let isCurrentStreakToday = false;
+        if (apiCurrentStreakDate) {
+            const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+            isCurrentStreakToday = apiCurrentStreakDate === todayStr;
+        }
+
         // Get our stored data
         const storageKey = `streak_tracker_${user.username}`;
         let storedData = JSON.parse(localStorage.getItem(storageKey) || 'null');
@@ -373,7 +381,7 @@ function handleDuolingoResponse(responseText) {
         // First time setup
         if (!storedData) {
             // Check if user already completed today's quest before first check
-            const hasCompletedToday = apiCurrentStreak > apiPreviousStreak;
+            const hasCompletedToday = isCurrentStreakToday;
             
             storedData = {
                 lastKnownStreak: apiCurrentStreak,
