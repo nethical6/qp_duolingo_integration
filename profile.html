@@ -173,6 +173,21 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+        .open-duolingo {
+            width: 100%;
+            background: linear-gradient(135deg, #58cc02, #89e219);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(88, 204, 2, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
         
         .quest-button:hover {username
             transform: translateY(-1px);
@@ -257,6 +272,11 @@
         
         <button class="quest-button" onclick="">
             Check if Quest Completed
+        </button>
+        <br>
+        <br>
+        <button class="open-duolingo" onclick="">
+            Open Duolingo
         </button>
     </div>
 </body>
@@ -592,6 +612,13 @@ window.onload = function() {
     const questButton = document.querySelector('.quest-button');
     if (questButton) {
         questButton.disabled = true;
+    }
+    const openDuoButton = document.querySelector(".open-duolingo");
+    if (openDuoButton) {
+        openDuoButton.disabled = false;
+        openDuoButton.addEventListener("click", () => {
+            WebAppInterface.openApp("com.duolingo");
+        });
     }
 };
 
