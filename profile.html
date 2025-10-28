@@ -228,13 +228,14 @@
             <div class="stat-item streak-highlight">
                 <span class="stat-number">127</span>
                 <span class="stat-label">Day Streak</span>
-                <div class="streak-status"></div>
             </div>
             <div class="stat-item">
                 <span class="stat-number">8,432</span>
                 <span class="stat-label">Total XP</span>
             </div>
         </div>
+
+         <div class="streak-status"></div>
         
         <div class="languages-section">
             <div class="languages-title">Learning</div>
@@ -416,6 +417,23 @@ function handleDuolingoResponse(responseText) {
             storedData.lastCheckDate = today;
             storedData.lastCheckTime = now;
             // Keep completed dates for history but we'll only check today
+        }
+
+        // If the API reports a smaller streak than we have stored (e.g. user lost streak),
+        // sync the local stored streak down so future increases are detected correctly.
+        // This covers the case: local shows 69, API dropped to 0 — we must set local to 0.
+        if (apiCurrentStreak < storedData.lastKnownStreak) {
+            // If the streak dropped to zero, it's possible today's completion (if present)
+            // is no longer valid — remove today's completion marker to avoid false positives.
+            const todayIndex = storedData.completedDates?.indexOf(today);
+            if (todayIndex >= 0 && apiCurrentStreak === 0) {
+                storedData.completedDates.splice(todayIndex, 1);
+            }
+
+            storedData.lastKnownStreak = apiCurrentStreak;
+            storedData.lastCheckTime = now;
+            // Persist the correction immediately so subsequent checks use the corrected value
+            localStorage.setItem(storageKey, JSON.stringify(storedData));
         }
         
         // Determine if quest is completed today
