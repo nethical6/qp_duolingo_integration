@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duolingo Profile Card</title>
     <style>
+        :root {
+        --color-primary: #00ff9f;
+        --color-on-primary: #000000;
+        --color-secondary: #00bfff;
+        --color-on-secondary: #000000;
+        --color-tertiary: #8a2be2;
+        --color-on-tertiary: #ffffff;
+        --color-background: #0a0a0a;
+        --color-on-background: #00ff9f;
+        --color-surface: #111111;
+        --color-on-surface: #b0ffda;
+        --color-error: #ff0040;
+        --color-on-error: #000000;
+      }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,7 +28,6 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #58cc02, #89e219);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -22,10 +36,10 @@
         }
         
         .profile-card {
-            background: white;
+            background: var(--color-surface);
+            border-color: var(--color-primary);
             border-radius: 24px;
             padding: 24px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
             width: 100%;
             max-width: 320px;
             text-align: center;
@@ -40,40 +54,40 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(90deg, #58cc02, #89e219, #58cc02);
         }
         
         .username {
             font-size: 22px;
             font-weight: bold;
-            color: #2b2b2b;
+            color: var(--color-on-surface);
             margin-bottom: 6px;
         }
         
         .join-date {
             font-size: 13px;
-            color: #777;
+            color: var(--color-on-surface);
             margin-bottom: 10px;
         }
 
         .last-updated {
             font-size: 12px;
-            color: #999;
-            margin-bottom: 20px;
+            color: var(--color-on-surface);
             font-style: italic;
+            margin-bottom: 10px;
         }
 
         .streak-status {
-            font-size: 12px;
+            font-size: 15px;
             padding: 4px 8px;
             border-radius: 8px;
-            margin-top: 8px;
             font-weight: 500;
+            margin-bottom: 20px;
+
         }
 
         .streak-status.safe {
-            background: #e7f8e1;
-            color: #58cc02;
+            color: var(--color-on-surface);
+    
         }
 
         .streak-status.warning {
@@ -92,13 +106,14 @@
             background: #f8fdf4;
             padding: 14px;
             border-radius: 12px;
-            border: 1px solid #e8f4e0;
+            color: var(--color-on-primary);
+            background-color: var(--color-primary);
         }
         
         .stat-number {
             font-size: 20px;
             font-weight: bold;
-            color: #58cc02;
+            color: var(--color-on-primary);
             display: block;
         }
         
@@ -118,20 +133,21 @@
         .languages-title {
             font-size: 15px;
             font-weight: bold;
-            color: #2b2b2b;
+            color: var(--color-on-surface);
             margin-bottom: 12px;
-            text-align: left;
+            text-align: center;
         }
         
         .languages-list {
             display: flex;
             flex-wrap: wrap;
+            justify-content: center;
             gap: 8px;
         }
         
         .language-badge {
-            background: linear-gradient(135deg, #58cc02, #89e219);
-            color: white;
+            background: var(--color-primary);
+            color: var(--color-on-primary);
             padding: 6px 10px;
             border-radius: 16px;
             font-size: 12px;
@@ -160,8 +176,8 @@
         
         .quest-button {
             width: 100%;
-            background: linear-gradient(135deg, #58cc02, #89e219);
-            color: white;
+            background: var(--color-primary);
+            color: var(var(--color-on-primary));
             border: none;
             padding: 14px 20px;
             border-radius: 14px;
@@ -169,14 +185,13 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 16px rgba(88, 204, 2, 0.3);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .open-duolingo {
             width: 100%;
-            background: linear-gradient(135deg, #58cc02, #89e219);
-            color: white;
+            background: var(--color-primary);
+            color: var(var(--color-on-primary));
             border: none;
             padding: 14px 20px;
             border-radius: 14px;
@@ -184,14 +199,12 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 16px rgba(88, 204, 2, 0.3);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
-        .quest-button:hover {username
+        .quest-button:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(88, 204, 2, 0.4);
         }
         
         .quest-button:active {
@@ -215,7 +228,7 @@
             width: 40px;
             height: 40px;
             border: 4px solid #f3f3f3;
-            border-top: 4px solid #58cc02;
+            border-top: 4px solid var(--color-primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -238,6 +251,7 @@
         <div class="username">DuoMaster2024</div>
         <div class="join-date">Joined September 2023</div>
         <div class="last-updated"></div>
+         <div class="streak-status"></div>
         
         <div class="stats-grid">
             <div class="stat-item streak-highlight">
@@ -250,7 +264,6 @@
             </div>
         </div>
 
-         <div class="streak-status"></div>
         
         <div class="languages-section">
             <div class="languages-title">Learning</div>
@@ -270,14 +283,15 @@
             </div>
         </div>
         
-        <button class="quest-button" onclick="">
-            Check if Quest Completed
-        </button>
-        <br>
-        <br>
         <button class="open-duolingo" onclick="">
             Open Duolingo
         </button>
+        <br>
+        <br>
+        <button class="quest-button" onclick="">
+            Check if Quest Completed
+        </button>
+
     </div>
 </body>
 <script>
@@ -303,38 +317,6 @@
     root.style.setProperty('--color-error', theme.error || '#FF0040');
     root.style.setProperty('--color-on-error', theme.onError || '#000000');
 
-    document.body.style.background = `var(--color-background)`;
-    document.body.style.color = `var(--color-on-background)`;
-    
-    card.style.background = `var(--color-surface)`;
-    card.style.color = `var(--color-on-surface)`;
-    card.style.boxShadow = `0 16px 40px rgba(0, 255, 159, 0.1)`;
-
-    document.querySelectorAll('.username, .languages-title').forEach(el => {
-        el.style.color = `var(--color-on-surface)`;
-    });
-
-    document.querySelectorAll('.stat-item').forEach(el => {
-        el.style.background = `var(--color-surface)`;
-        el.style.borderColor = `var(--color-primary)`;
-    });
-
-    document.querySelectorAll('.stat-number').forEach(el => {
-        el.style.color = `var(--color-primary)`;
-    });
-
-    document.querySelectorAll('.language-badge, .quest-button').forEach(el => {
-        el.style.background = `var(--color-primary)`;
-        el.style.color = `var(--color-on-primary)`;
-    });
-
-    document.querySelector('.loading-spinner').style.borderTopColor = `var(--color-primary)`;
-
-    setTimeout(() => {
-        [card, ...elements].forEach(el => {
-            if (el) el.classList.remove('theme-transition');
-        });
-    }, 300);
 }
 
 async function loadDuolingoProfile(username) {

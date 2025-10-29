@@ -1,442 +1,512 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>QP x DUOLINGO - Quest Generator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #58cc02 0%, #89e219 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #58cc02 0%, #89e219 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
 
+      .container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        animation: slideUp 0.8s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: #58cc02;
+        margin-bottom: 10px;
+        letter-spacing: -1px;
+      }
+
+      .disclaimer {
+        font-size: 0.85rem;
+        color: #777;
+        line-height: 1.4;
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 12px;
+        border-left: 4px solid #58cc02;
+      }
+
+      .step {
+        margin-bottom: 30px;
+        opacity: 0;
+        animation: fadeInStep 0.6s ease-out forwards;
+      }
+
+      .step:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .step:nth-child(3) {
+        animation-delay: 0.2s;
+      }
+      .step:nth-child(4) {
+        animation-delay: 0.3s;
+      }
+      .step:nth-child(5) {
+        animation-delay: 0.4s;
+      }
+      .step:nth-child(6) {
+        animation-delay: 0.5s;
+      }
+
+      @keyframes fadeInStep {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .step-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2b2b2b;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+      }
+
+      .step-number {
+        background: #58cc02;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-right: 12px;
+      }
+
+      .step-description {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 15px;
+      }
+
+      .input-field {
+        width: 100%;
+        padding: 16px 20px;
+        border: 2px solid #e5e5e5;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fafafa;
+      }
+
+      .input-field:focus {
+        outline: none;
+        border-color: #58cc02;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(88, 204, 2, 0.1);
+        transform: translateY(-2px);
+      }
+      .generate-btn {
+        background: linear-gradient(135deg, #58cc02, #89e219);
+        color: white;
+        border: none;
+        padding: 18px 40px;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .generate-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(88, 204, 2, 0.4);
+      }
+
+      .generate-btn:active {
+        transform: translateY(-1px);
+      }
+
+      .generate-btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.6s ease;
+      }
+
+      .generate-btn:hover::before {
+        left: 100%;
+      }
+
+      .final-step {
+        text-align: center;
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 15px;
+        border: 2px dashed #58cc02;
+      }
+
+      .final-step-text {
+        font-size: 1rem;
+        color: #2b2b2b;
+        font-weight: 600;
+        line-height: 1.5;
+      }
+
+      /* Mobile Responsive */
+      @media (max-width: 768px) {
         .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-            animation: slideUp 0.8s ease-out;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
+          padding: 25px;
+          margin: 10px;
         }
 
         .title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: #58cc02;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
+          font-size: 2rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 20px;
         }
 
-        .disclaimer {
-            font-size: 0.85rem;
-            color: #777;
-            line-height: 1.4;
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 12px;
-            border-left: 4px solid #58cc02;
-        }
-
-        .step {
-            margin-bottom: 30px;
-            opacity: 0;
-            animation: fadeInStep 0.6s ease-out forwards;
-        }
-
-        .step:nth-child(2) { animation-delay: 0.1s; }
-        .step:nth-child(3) { animation-delay: 0.2s; }
-        .step:nth-child(4) { animation-delay: 0.3s; }
-        .step:nth-child(5) { animation-delay: 0.4s; }
-        .step:nth-child(6) { animation-delay: 0.5s; }
-
-        @keyframes fadeInStep {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+        .title {
+          font-size: 1.8rem;
         }
 
         .step-title {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #2b2b2b;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
+          font-size: 1.1rem;
         }
+      }
 
-        .step-number {
-            background: #58cc02;
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            font-weight: 700;
-            margin-right: 12px;
+      /* Pulse animation for generate button */
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(88, 204, 2, 0.4);
         }
-
-        .step-description {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 15px;
+        70% {
+          box-shadow: 0 0 0 20px rgba(88, 204, 2, 0);
         }
-
-        .input-field {
-            width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e5e5e5;
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #fafafa;
+        100% {
+          box-shadow: 0 0 0 0 rgba(88, 204, 2, 0);
         }
+      }
 
-        .input-field:focus {
-            outline: none;
-            border-color: #58cc02;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(88, 204, 2, 0.1);
-            transform: translateY(-2px);
-        }
-        .generate-btn {
-            background: linear-gradient(135deg, #58cc02, #89e219);
-            color: white;
-            border: none;
-            padding: 18px 40px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
+      .generate-btn.pulse {
+        animation: pulse 2s infinite;
+      }
+      /* JSON modal */
+      #json-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
 
-        .generate-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(88, 204, 2, 0.4);
-        }
+      #json-modal .json-box {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 720px;
+        width: 92%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      }
 
-        .generate-btn:active {
-            transform: translateY(-1px);
-        }
+      #json-modal textarea {
+        width: 100%;
+        height: 320px;
+        border-radius: 8px;
+        border: 1px solid #e6e6e6;
+        padding: 12px;
+        font-family: monospace;
+        font-size: 13px;
+        resize: vertical;
+        background: #f8f8f8;
+      }
 
-        .generate-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-            transition: left 0.6s ease;
-        }
-
-        .generate-btn:hover::before {
-            left: 100%;
-        }
-
-        .final-step {
-            text-align: center;
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            border: 2px dashed #58cc02;
-        }
-
-        .final-step-text {
-            font-size: 1rem;
-            color: #2b2b2b;
-            font-weight: 600;
-            line-height: 1.5;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 25px;
-                margin: 10px;
-            }
-
-            .title {
-                font-size: 2rem;
-            }
-
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-            }
-
-            .title {
-                font-size: 1.8rem;
-            }
-
-            .step-title {
-                font-size: 1.1rem;
-            }
-
-        }
-
-        /* Pulse animation for generate button */
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(88, 204, 2, 0.4); }
-            70% { box-shadow: 0 0 0 20px rgba(88, 204, 2, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(88, 204, 2, 0); }
-        }
-
-        .generate-btn.pulse {
-            animation: pulse 2s infinite;
-        }
-        /* JSON modal */
-        #json-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-
-        #json-modal .json-box {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            max-width: 720px;
-            width: 92%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-        }
-
-        #json-modal textarea {
-            width: 100%;
-            height: 320px;
-            border-radius: 8px;
-            border: 1px solid #e6e6e6;
-            padding: 12px;
-            font-family: monospace;
-            font-size: 13px;
-            resize: vertical;
-            background: #f8f8f8;
-        }
-
-        #json-modal .modal-actions {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-            justify-content: flex-end;
-        }
+      #json-modal .modal-actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="header">
-            <h1 class="title">QP × DUOLINGO</h1>
-            <div class="disclaimer">
-                <strong>Disclaimer:</strong> This project uses an unofficial Duolingo API. It is not affiliated with, endorsed by, or sponsored by Duolingo or QuestPhone. "Duolingo" and "QuestPhone" and their associated logos are trademarks of their respective owners.
-
-                You yourself are solely responsible for using this quest and this generator
-            </div>
-            <br>
-            <div class="disclaimer">
-                Make sure that your duolingo profile is public or else this won't work. To check if your profile is public, go to your duolingo profile settings (duolingo web) and ensure "Private Profile" is turned off.   
-            </div>
+      <div class="header">
+        <h1 class="title">QP × DUOLINGO</h1>
+        <div class="disclaimer">
+          <strong>Disclaimer:</strong> This project uses an unofficial Duolingo
+          API. It is not affiliated with, endorsed by, or sponsored by Duolingo
+          or QuestPhone. "Duolingo" and "QuestPhone" and their associated logos
+          are trademarks of their respective owners. You yourself are solely
+          responsible for using this quest and this generator
         </div>
-        <div class="step">
-            <h2 class="step-title">
-            <span class="step-number">1</span>
-            Enter your duolingo username
-            </h2>
-            <p class="step-description">Make sure the username is correct. It cannot be changed later.</p>
-            
-            <input type="text" class="input-field" id="username" placeholder="Your Duolingo username" oninput="updateProfileMessage()">
-            <p id="profile-message" style="font-size: 0.85rem; color: #777; margin-top: 10px;"></p>
+        <br />
+        <div class="disclaimer">
+          Make sure that your duolingo profile is public or else this won't
+          work. To check if your profile is public, go to your duolingo profile
+          settings (duolingo web) and ensure "Private Profile" is turned off.
         </div>
+      </div>
+      <div class="step">
+        <h2 class="step-title">
+          <span class="step-number">1</span>
+          Enter your duolingo username
+        </h2>
+        <p class="step-description">
+          Make sure the username is correct. It cannot be changed later.
+        </p>
 
+        <input
+          type="text"
+          class="input-field"
+          id="username"
+          placeholder="Your Duolingo username"
+          oninput="updateProfileMessage()"
+        />
+        <p
+          id="profile-message"
+          style="font-size: 0.85rem; color: #777; margin-top: 10px"
+        ></p>
+      </div>
 
-        <div class="step">
-            <h2 class="step-title">
-                <span class="step-number">5</span>
-                Generate Quest
-            </h2>
-            <button class="generate-btn pulse" onclick="generateQuest()">
-                🚀 Generate Quest
-            </button>
-        </div>
+      <div class="step">
+        <h2 class="step-title">
+          <span class="step-number">5</span>
+          Generate Quest
+        </h2>
+        <button class="generate-btn pulse" onclick="generateQuest()">
+          🚀 Generate Quest
+        </button>
+      </div>
     </div>
 
     <script>
+      // Day selection functionality
+      const dayButtons = document.querySelectorAll(".day-button");
+      const selectedDays = new Set([
+        "SUN",
+        "MON",
+        "TUE",
+        "WED",
+        "THU",
+        "FRI",
+        "SAT",
+      ]);
 
-        // Day selection functionality
-        const dayButtons = document.querySelectorAll('.day-button');
-        const selectedDays = new Set(["SUN","MON","TUE","WED","THU","FRI","SAT"]);
-
-
-        // Input field animations
-        const inputFields = document.querySelectorAll('.input-field');
-        inputFields.forEach(field => {
-            field.addEventListener('focus', () => {
-                field.parentElement.style.transform = 'translateY(-2px)';
-            });
-            
-            field.addEventListener('blur', () => {
-                field.parentElement.style.transform = 'translateY(0)';
-            });
+      // Input field animations
+      const inputFields = document.querySelectorAll(".input-field");
+      inputFields.forEach((field) => {
+        field.addEventListener("focus", () => {
+          field.parentElement.style.transform = "translateY(-2px)";
         });
 
-        function updateProfileMessage() {
-            const username = document.getElementById('username').value;
-            const messageElement = document.getElementById('profile-message');
-            if (username) {
-                messageElement.innerHTML = `Check if your profile is public: <a href="https://duome.eu/${username}" target="_blank" style="color: #58cc02; text-decoration: underline;">https://duome.eu/${username}</a>`;
-            } else {
-                messageElement.innerHTML = '';
-            }
-        }
-
-        // Generate quest function
-        async function generateQuest() {
-            const username = document.getElementById('username').value;
-            const startTime = 0;
-            const endTime = 24
-            
-            // Validation
-            if (!username) {
-                alert('Please enter your Duolingo username!');
-                document.getElementById('username').focus();
-                return;
-            }
-            
-            if (selectedDays.size === 0) {
-                alert('Please select at least one day for your quest!');
-                return;
-            }
-            
-            // Prepare the payload exactly like `server.ts` would create it
-            const generateBtn = document.querySelector('.generate-btn');
-            generateBtn.innerHTML = '🔄 Preparing JSON...';
-            generateBtn.style.background = '#ffa500';
-
-            try {
-                const questJson = {
-                    webviewUrl: "https://nethical6.github.io/qp_duolingo_integration/profile",
-                    username: username
-                };
-                const questPayload = {
-                    title: "Duolingo Quest",
-                    reward: 5,
-                    integration_id: "EXTERNAL_INTEGRATION",
-                    quest_json: JSON.stringify(questJson),
-                    selected_days: Array.from(selectedDays),
-                    time_range: [ startTime, endTime ]
-                };
-
-                // Show the JSON in a modal for copy/paste
-                const modal = document.getElementById('json-modal');
-                const ta = document.getElementById('json-output');
-                ta.value = JSON.stringify(questPayload, null, 2);
-                modal.style.display = 'flex';
-
-                generateBtn.innerHTML = '🚀 Generate Quest';
-                generateBtn.style.background = 'linear-gradient(135deg, #58cc02, #89e219)';
-            } catch (error) {
-                alert('Failed to prepare quest JSON: ' + (error.message || error));
-                generateBtn.innerHTML = '❌ Error';
-                generateBtn.style.background = '#ff4444';
-                setTimeout(() => {
-                    generateBtn.innerHTML = '🚀 Generate Quest';
-                    generateBtn.style.background = 'linear-gradient(135deg, #58cc02, #89e219)';
-                }, 2000);
-            }
-        }
-
-        // Add stagger animation on load
-        const steps = document.querySelectorAll('.step');
-        steps.forEach((step, index) => {
-            step.style.animationDelay = `${index * 0.1}s`;
+        field.addEventListener("blur", () => {
+          field.parentElement.style.transform = "translateY(0)";
         });
+      });
+
+      function updateProfileMessage() {
+        const username = document.getElementById("username").value;
+        const messageElement = document.getElementById("profile-message");
+        if (username) {
+          messageElement.innerHTML = `Check if your profile is public: <a href="https://duome.eu/${username}" target="_blank" style="color: #58cc02; text-decoration: underline;">https://duome.eu/${username}</a>`;
+        } else {
+          messageElement.innerHTML = "";
+        }
+      }
+
+      // Generate quest function
+      async function generateQuest() {
+        const username = document.getElementById("username").value;
+        const startTime = 0;
+        const endTime = 24;
+
+        // Validation
+        if (!username) {
+          alert("Please enter your Duolingo username!");
+          document.getElementById("username").focus();
+          return;
+        }
+
+        if (selectedDays.size === 0) {
+          alert("Please select at least one day for your quest!");
+          return;
+        }
+
+        // Prepare the payload exactly like `server.ts` would create it
+        const generateBtn = document.querySelector(".generate-btn");
+        generateBtn.innerHTML = "🔄 Preparing JSON...";
+        generateBtn.style.background = "#ffa500";
+        try {
+          const questJson = {
+            webviewUrl:
+              location.origin +
+              (location.pathname.endsWith("index.html")
+                ? location.pathname.replace("index.html", "profile.html")
+                : location.pathname.endsWith("/")
+                ? location.pathname + "profile.html"
+                : location.pathname + "/profile.html"), // same repo
+            username: username,
+          };
+          const questPayload = {
+            title: "Duolingo Quest",
+            reward: 5,
+            integration_id: "EXTERNAL_INTEGRATION",
+            quest_json: JSON.stringify(questJson),
+            selected_days: Array.from(selectedDays),
+            time_range: [startTime, endTime],
+          };
+
+          // Show the JSON in a modal for copy/paste
+          const modal = document.getElementById("json-modal");
+          const ta = document.getElementById("json-output");
+          ta.value = JSON.stringify(questPayload, null, 2);
+          modal.style.display = "flex";
+
+          generateBtn.innerHTML = "🚀 Generate Quest";
+          generateBtn.style.background =
+            "linear-gradient(135deg, #58cc02, #89e219)";
+        } catch (error) {
+          alert("Failed to prepare quest JSON: " + (error.message || error));
+          generateBtn.innerHTML = "❌ Error";
+          generateBtn.style.background = "#ff4444";
+          setTimeout(() => {
+            generateBtn.innerHTML = "🚀 Generate Quest";
+            generateBtn.style.background =
+              "linear-gradient(135deg, #58cc02, #89e219)";
+          }, 2000);
+        }
+      }
+
+      // Add stagger animation on load
+      const steps = document.querySelectorAll(".step");
+      steps.forEach((step, index) => {
+        step.style.animationDelay = `${index * 0.1}s`;
+      });
     </script>
 
     <!-- JSON modal (hidden until generate) -->
     <div id="json-modal" onclick="if(event.target===this) closeJsonModal()">
-        <div class="json-box">
-            <h3 style="margin:0 0 8px 0">Generated Quest JSON</h3>
-            <p style="margin:0 0 12px 0;color:#666;font-size:13px">
-                    Paste this into Add Custom Quest > External Integration > Quest Json field on questphone 📱✨
-            </p>
-            <textarea id="json-output" readonly></textarea>
-            <div class="modal-actions">
-                <button onclick="copyJson()" class="generate-btn" style="padding:10px 14px; font-size:14px; width:auto">Copy JSON</button>
-                <button onclick="closeJsonModal()" style="padding:10px 14px; font-size:14px; width:auto; background:#eee; color:#222; border-radius:8px; border:1px solid #ddd">Close</button>
-            </div>
+      <div class="json-box">
+        <h3 style="margin: 0 0 8px 0">Generated Quest JSON</h3>
+        <p style="margin: 0 0 12px 0; color: #666; font-size: 13px">
+          Paste this into Add Custom Quest > External Integration > Quest Json
+          field on questphone 📱✨
+        </p>
+        <textarea id="json-output" readonly></textarea>
+        <div class="modal-actions">
+          <button
+            onclick="copyJson()"
+            class="generate-btn"
+            style="padding: 10px 14px; font-size: 14px; width: auto"
+          >
+            Copy JSON
+          </button>
+          <button
+            onclick="closeJsonModal()"
+            style="
+              padding: 10px 14px;
+              font-size: 14px;
+              width: auto;
+              background: #eee;
+              color: #222;
+              border-radius: 8px;
+              border: 1px solid #ddd;
+            "
+          >
+            Close
+          </button>
         </div>
+      </div>
     </div>
 
     <script>
-        function closeJsonModal(){
-            const modal = document.getElementById('json-modal');
-            modal.style.display = 'none';
-        }
+      function closeJsonModal() {
+        const modal = document.getElementById("json-modal");
+        modal.style.display = "none";
+      }
 
-        function copyJson(){
-            const ta = document.getElementById('json-output');
-            ta.select();
-            try {
-                document.execCommand('copy');
-                alert('JSON copied to clipboard');
-            } catch (e) {
-                // fallback: try navigator
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(ta.value).then(()=>{
-                        alert('JSON copied to clipboard');
-                    }).catch(()=>{
-                        alert('Copy failed — select and copy manually');
-                    });
-                } else {
-                    alert('Copy failed — select and copy manually');
-                }
-            }
+      function copyJson() {
+        const ta = document.getElementById("json-output");
+        ta.select();
+        try {
+          document.execCommand("copy");
+          alert("JSON copied to clipboard");
+        } catch (e) {
+          // fallback: try navigator
+          if (navigator.clipboard) {
+            navigator.clipboard
+              .writeText(ta.value)
+              .then(() => {
+                alert("JSON copied to clipboard");
+              })
+              .catch(() => {
+                alert("Copy failed — select and copy manually");
+              });
+          } else {
+            alert("Copy failed — select and copy manually");
+          }
         }
+      }
     </script>
-</body>
+  </body>
 </html>
