@@ -82,17 +82,13 @@
             border-radius: 8px;
             font-weight: 500;
             margin-bottom: 20px;
-
-        }
-
-        .streak-status.safe {
             color: var(--color-on-surface);
-    
-        }
+            }
+
 
         .streak-status.warning {
             background: #fff4e5;
-            color: #ff9600;
+            color: var(--color-error);
         }
         
         .stats-grid {
@@ -510,13 +506,13 @@ function renderProfile(user) {
         const completedToday = storedData.completedDates.includes(today);
         
         if (completedToday) {
-            streakStatusEl.textContent = "✅ Quest completed today!";
+            streakStatusEl.textContent = "Quest completed today!";
             streakStatusEl.className = "streak-status safe";
         } else if (hoursSinceCheck > 20) {
-            streakStatusEl.textContent = "⚠️ Check in today to maintain your streak!";
+            streakStatusEl.textContent = "Check in today to maintain your streak!";
             streakStatusEl.className = "streak-status warning";
         } else {
-            streakStatusEl.textContent = "⏰ Complete a lesson today!";
+            streakStatusEl.textContent = "Complete a lesson today!";
             streakStatusEl.className = "streak-status pending";
         }
     }
